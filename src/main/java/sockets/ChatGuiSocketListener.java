@@ -38,6 +38,7 @@ public class ChatGuiSocketListener implements Runnable {
         else {
             Platform.runLater(() -> {
                 chatGuiClient.getMessageArea().appendText(m.userName + " joined the chat!\n");
+                chatGuiClient.getNames().add(m.userName);
             });
         }
     }

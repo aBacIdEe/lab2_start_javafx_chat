@@ -19,6 +19,10 @@ public class ChatServerSocketListener  implements Runnable {
         broadcast(new MessageStoC_Chat(client.getUserName(), m.msg), null);
     }
 
+    private void processUpdateListMessage(MessageCtoS_UpdateList m) {
+        broadcast(new MessageStoC_UpdateList(client.getUserName()), client);
+    }
+
     /**
      * Broadcasts a message to all clients connected to the server.
      */
@@ -54,6 +58,9 @@ public class ChatServerSocketListener  implements Runnable {
                 Message msg = (Message) in.readObject();
                 if (msg instanceof MessageCtoS_Quit) {
                     break;
+                }
+                else if (msg instanceof MessageCtoS_UpdateList) {
+                    processUpdateListMessage((MessageCtoS_UpdateList) msg);
                 }
                 else if (msg instanceof MessageCtoS_Chat) {
                     processChatMessage((MessageCtoS_Chat) msg);

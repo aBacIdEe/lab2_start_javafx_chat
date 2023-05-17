@@ -39,6 +39,7 @@ public class ChatGuiSocketListener implements Runnable {
             Platform.runLater(() -> {
                 chatGuiClient.getMessageArea().appendText(m.userName + " joined the chat!\n");
                 chatGuiClient.getNames().add(m.userName);
+                chatGuiClient.sendMessage(new MessageCtoS_UpdateList(m.userName));
             });
         }
     }
@@ -46,6 +47,12 @@ public class ChatGuiSocketListener implements Runnable {
     private void processChatMessage(MessageStoC_Chat m) {
         Platform.runLater(() -> {
             chatGuiClient.getMessageArea().appendText(m.userName + ": " + m.msg + "\n");
+        });
+    }
+
+    private void processUpdateListMessage(MessageStoC_UpdateList m) {
+        Platform.runLater(() -> {
+            chatGuiClient.getNames().add(m.userName);
         });
     }
 
@@ -77,6 +84,8 @@ public class ChatGuiSocketListener implements Runnable {
 
                 if (msg instanceof MessageStoC_Welcome) {
                     processWelcomeMessage((MessageStoC_Welcome) msg);
+                }else if (msg instanceof MessageStoC_UpdateList){
+                    processUpdateListMessage((MessageStoC_UpdateList) msg);
                 } else if (msg instanceof MessageStoC_Chat) {
                     processChatMessage((MessageStoC_Chat) msg);
                 } else if (msg instanceof MessageStoC_Exit) {

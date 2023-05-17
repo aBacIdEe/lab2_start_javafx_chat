@@ -80,7 +80,7 @@ public class ChatGuiClient extends Application {
         listView.setPrefSize(200, 250);
         listView.setEditable(false);
         listView.setItems(names);
-        names.add("Example name");
+        names.add("Everyone");
         listView.setCellFactory(param -> new RadioListCell());
         borderPane.setLeft(listView);
 

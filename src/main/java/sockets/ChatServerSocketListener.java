@@ -20,7 +20,7 @@ public class ChatServerSocketListener  implements Runnable {
     }
 
     private void processUpdateListMessage(MessageCtoS_UpdateList m) {
-        broadcast(new MessageStoC_UpdateList(client.getUserName()), client);
+        broadcast(new MessageStoC_AddToList(client.getUserName()), client);
     }
 
     /**
@@ -79,7 +79,8 @@ public class ChatServerSocketListener  implements Runnable {
             }
         } finally {
             //Remove client from clientList
-            clientList.remove(client); 
+            clientList.remove(client);
+            broadcast(new MessageStoC_RemoveFromList(client.getUserName()), client);
 
             // Notify everyone that the user left.
             broadcast(new MessageStoC_Exit(client.getUserName()), client);

@@ -1,10 +1,15 @@
 package sockets;
 
+import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.util.Optional;
 
 import javafx.application.Platform;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 
 public class ChatGuiSocketListener implements Runnable {
 
@@ -23,6 +28,26 @@ public class ChatGuiSocketListener implements Runnable {
         this.chatGuiClient = chatClient;
     }
 
+    private void addMessage(String msg) {
+        try {
+            HBox message = new HBox();
+            TextArea text = new TextArea(msg);
+            text.setEditable(false);
+            Image image = new Image(new FileInputStream("src\\main\\java\\pictures\\Gato2.png"));
+            ImageView pfp = new ImageView(image);
+            pfp.setFitHeight(100);
+            pfp.setFitWidth(100);
+            message.getChildren().addAll(pfp, text);
+            chatGuiClient.getMessageArea().getChildren().add(message);
+            chatGuiClient.getScrollPane().applyCss();
+            chatGuiClient.getScrollPane().layout();
+            chatGuiClient.getScrollPane().setVvalue(1);
+        }
+        catch (Exception ex) {
+            System.out.println(ex);
+        }
+    }
+
     private void processWelcomeMessage(MessageStoC_Welcome m) {
         String user = m.userName;
 
@@ -31,13 +56,16 @@ public class ChatGuiSocketListener implements Runnable {
                 chatGuiClient.getStage().setTitle("Chatter - " + username);
                 chatGuiClient.getTextInput().setEditable(true);
                 chatGuiClient.getSendButton().setDisable(false);
-                chatGuiClient.getMessageArea().appendText("Welcome to the chat, " + username + "\n");
+                // chatGuiClient.getMessageArea().appendText("Welcome to the chat, " + username + "\n");
+                addMessage("Welcome to the chat, " + username + "\n");
             });
         }
 
         else {
             Platform.runLater(() -> {
-                chatGuiClient.getMessageArea().appendText(m.userName + " joined the chat!\n");
+                // chatGuiClient.getMessageArea().appendText(m.userName + " joined the chat!\n");
+                addMessage(m.userName + " joined the chat!\n");
+
                 chatGuiClient.getNames().add(m.userName);
                 chatGuiClient.sendMessage(new MessageCtoS_UpdateList(m.userName));
             });
@@ -46,7 +74,16 @@ public class ChatGuiSocketListener implements Runnable {
 
     private void processChatMessage(MessageStoC_Chat m) {
         Platform.runLater(() -> {
-            chatGuiClient.getMessageArea().appendText(m.userName + ": " + m.msg + "\n");
+            // chatGuiClient.getMessageArea().appendText(m.userName + ": " + m.msg + "\n");
+            HBox message = new HBox();
+            TextArea text = new TextArea(m.userName + ": " + m.msg + "\n");
+            text.setEditable(false);
+            text.setWrapText(true);
+            message.getChildren().addAll(new ImageView(), text);
+            chatGuiClient.getMessageArea().getChildren().add(message);
+            chatGuiClient.getScrollPane().applyCss();
+            chatGuiClient.getScrollPane().layout();
+            chatGuiClient.getScrollPane().setVvalue(1);
         });
     }
 
@@ -69,7 +106,8 @@ public class ChatGuiSocketListener implements Runnable {
 
     private void processExitMessage(MessageStoC_Exit m) {
         Platform.runLater(() -> {
-            chatGuiClient.getMessageArea().appendText(m.userName + " has left the chat!\n");
+            // chatGuiClient.getMessageArea().appendText(m.userName + " has left the chat!\n");
+            addMessage(m.userName + " has left the chat!\n");
         });
     }
 

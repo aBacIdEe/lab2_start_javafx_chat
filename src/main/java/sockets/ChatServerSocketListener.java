@@ -42,6 +42,19 @@ public class ChatServerSocketListener  implements Runnable {
         }        
     }
 
+    public void directMessage(Message m, ClientConnectionData target) {
+        try {
+            for (ClientConnectionData c: clientList) {
+                if ((c == target) && c.getUserName() != null) {
+                    c.getOut().writeObject(m);
+                }
+            }
+        } catch (Exception ex) {
+            System.out.println("directMessage caught exception: " + ex);
+            ex.printStackTrace();
+        }
+    }
+
     @Override
     public void run() {
         try {

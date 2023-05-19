@@ -52,6 +52,11 @@ public class ChatGuiSocketListener implements Runnable {
 
     private void processUpdateListMessage(MessageStoC_AddToList m) {
         Platform.runLater(() -> {
+            for (int i = 0; i < chatGuiClient.getNames().size(); i++) {
+                if (chatGuiClient.getNames().get(i).equals(m.userName)) {
+                    return;
+                }
+            }
             chatGuiClient.getNames().add(m.userName);
         });
     }

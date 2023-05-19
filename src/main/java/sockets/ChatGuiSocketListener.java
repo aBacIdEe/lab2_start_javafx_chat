@@ -50,6 +50,12 @@ public class ChatGuiSocketListener implements Runnable {
         });
     }
 
+    private void processDirectMessage(MessageStoC_DM m) {
+        Platform.runLater(() -> {
+            chatGuiClient.getMessageArea().appendText(m.sender + " (DM):" + m.msg + "\n");
+        });
+    }
+
     private void processUpdateListMessage(MessageStoC_AddToList m) {
         Platform.runLater(() -> {
             for (int i = 0; i < chatGuiClient.getNames().size(); i++) {
@@ -104,7 +110,9 @@ public class ChatGuiSocketListener implements Runnable {
                     processUpdateListMessage((MessageStoC_AddToList) msg);
                 } else if (msg instanceof MessageStoC_RemoveFromList) {
                     processRemoveFromListMessage((MessageStoC_RemoveFromList) msg);
-                } else if (msg instanceof MessageStoC_Chat) {
+                } else if (msg instanceof MessageStoC_DM) {
+                    processDirectMessage((MessageStoC_DM) msg);
+                }else if (msg instanceof MessageStoC_Chat) {
                     processChatMessage((MessageStoC_Chat) msg);
                 } else if (msg instanceof MessageStoC_Exit) {
                     processExitMessage((MessageStoC_Exit) msg);

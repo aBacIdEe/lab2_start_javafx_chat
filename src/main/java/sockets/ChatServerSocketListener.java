@@ -23,6 +23,10 @@ public class ChatServerSocketListener  implements Runnable {
         broadcast(new MessageStoC_AddToList(client.getUserName()), client);
     }
 
+    private void processDM(MessageCtoS_DM m) {
+        directMessage(new MessageStoC_DM(client.getUserName(), m.msg), m.target);
+    }
+
     /**
      * Broadcasts a message to all clients connected to the server.
      */
@@ -42,10 +46,10 @@ public class ChatServerSocketListener  implements Runnable {
         }        
     }
 
-    public void directMessage(Message m, ClientConnectionData target) {
+    public void directMessage(Message m, String target) {
         try {
             for (ClientConnectionData c: clientList) {
-                if ((c == target) && c.getUserName() != null) {
+                if ((c.getUserName().equals(target)) && c.getUserName() != null) {
                     c.getOut().writeObject(m);
                 }
             }
@@ -74,6 +78,9 @@ public class ChatServerSocketListener  implements Runnable {
                 }
                 else if (msg instanceof MessageCtoS_UpdateList) {
                     processUpdateListMessage((MessageCtoS_UpdateList) msg);
+                }
+                else if (msg instanceof MessageCtoS_DM) {
+                    processDM((MessageCtoS_DM) msg);
                 }
                 else if (msg instanceof MessageCtoS_Chat) {
                     processChatMessage((MessageCtoS_Chat) msg);

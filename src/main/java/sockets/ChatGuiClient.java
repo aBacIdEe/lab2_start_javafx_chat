@@ -141,7 +141,13 @@ public class ChatGuiClient extends Application {
             return;
         }
         textInput.clear();
-        sendMessage(new MessageCtoS_Chat(msg));
+        if (((RadioButton) group.getSelectedToggle()).getText() == null || ((RadioButton) group.getSelectedToggle()).getText().equals("Everyone")) {
+            sendMessage(new MessageCtoS_Chat(msg));
+        }
+        else {
+            sendMessage(new MessageCtoS_DM(((RadioButton) group.getSelectedToggle()).getText(), msg));
+        }
+        
     }
 
     public ObjectOutputStream getSocketOut() {

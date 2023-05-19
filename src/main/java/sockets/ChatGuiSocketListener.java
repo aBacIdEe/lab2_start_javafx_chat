@@ -1,11 +1,13 @@
 package sockets;
 
+import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.util.Optional;
 
 import javafx.application.Platform;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 
@@ -27,14 +29,23 @@ public class ChatGuiSocketListener implements Runnable {
     }
 
     private void addMessage(String msg) {
-        HBox message = new HBox();
-        TextArea text = new TextArea(msg);
-        text.setEditable(false);
-        message.getChildren().add(text);
-        chatGuiClient.getMessageArea().getChildren().add(message);
-        chatGuiClient.getScrollPane().applyCss();
-        chatGuiClient.getScrollPane().layout();
-        chatGuiClient.getScrollPane().setVvalue(1);
+        try {
+            HBox message = new HBox();
+            TextArea text = new TextArea(msg);
+            text.setEditable(false);
+            Image image = new Image(new FileInputStream("src\\main\\java\\pictures\\Gato2.png"));
+            ImageView pfp = new ImageView(image);
+            pfp.setFitHeight(100);
+            pfp.setFitWidth(100);
+            message.getChildren().addAll(pfp, text);
+            chatGuiClient.getMessageArea().getChildren().add(message);
+            chatGuiClient.getScrollPane().applyCss();
+            chatGuiClient.getScrollPane().layout();
+            chatGuiClient.getScrollPane().setVvalue(1);
+        }
+        catch (Exception ex) {
+            System.out.println(ex);
+        }
     }
 
     private void processWelcomeMessage(MessageStoC_Welcome m) {

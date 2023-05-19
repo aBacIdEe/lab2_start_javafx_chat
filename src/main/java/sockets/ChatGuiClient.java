@@ -22,13 +22,14 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class ChatGuiClient extends Application {
@@ -40,7 +41,8 @@ public class ChatGuiClient extends Application {
     private ToggleGroup group = new ToggleGroup();
 
     private Stage stage;
-    private TextArea messageArea;
+    private ScrollPane scrollpane;
+    private VBox messageArea;
     private TextField textInput;
     private Button sendButton;
 
@@ -69,11 +71,12 @@ public class ChatGuiClient extends Application {
 
         this.stage = primaryStage;
         BorderPane borderPane = new BorderPane();
-
-        messageArea = new TextArea();
-        messageArea.setWrapText(true);
-        messageArea.setEditable(false);
-        borderPane.setCenter(messageArea);
+        messageArea = new VBox();
+        // messageArea.setWrapText(true);
+        // messageArea.setEditable(false);
+        scrollpane = new ScrollPane();
+        scrollpane.setContent(messageArea);
+        borderPane.setCenter(scrollpane);
 
         // active user list
         final ListView<String> listView = new ListView<>();
@@ -156,8 +159,12 @@ public class ChatGuiClient extends Application {
         return stage;
     }
 
-    public TextArea getMessageArea() {
+    public VBox getMessageArea() {
         return messageArea;
+    }
+
+    public ScrollPane getScrollPane() {
+        return scrollpane;
     }
 
     public TextField getTextInput() {

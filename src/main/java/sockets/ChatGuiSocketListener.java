@@ -1,21 +1,30 @@
 package sockets;
 
-import java.io.FileInputStream;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
+import java.util.Base64;
 import java.util.Optional;
 
+import javax.imageio.ImageIO;
+
 import javafx.application.Platform;
-import javafx.scene.control.TextArea;
+import javafx.swing;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
+
 
 public class ChatGuiSocketListener implements Runnable {
 
     private ObjectInputStream socketIn;
     private ChatGuiClient chatGuiClient;
     private String username = null;
+    private boolean alternate = true;
 
     // volatile guarantees that different threads reading the same variable will
     // always see the latest write.
@@ -28,15 +37,22 @@ public class ChatGuiSocketListener implements Runnable {
         this.chatGuiClient = chatClient;
     }
 
-    private void addMessage(String msg) {
+    private void addMessage(String msg, Image pfpin) {
         try {
             HBox message = new HBox();
-            TextArea text = new TextArea(msg);
-            text.setEditable(false);
-            Image image = new Image(new FileInputStream("src\\main\\java\\pictures\\Gato2.png"));
-            ImageView pfp = new ImageView(image);
-            pfp.setFitHeight(100);
-            pfp.setFitWidth(100);
+            TextFlow text = new TextFlow();
+            if (alternate) {
+                text.setStyle("-fx-background-color: white");
+                alternate = false;
+            } else {
+                alternate = true;
+            }
+            text.getChildren().add(new Text(msg));
+            HBox.setHgrow(text, Priority.ALWAYS);
+            // text.setEditable(false);
+            ImageView pfp = new ImageView(pfpin);
+            pfp.setFitHeight(36);
+            pfp.setFitWidth(36);
             message.getChildren().addAll(pfp, text);
             chatGuiClient.getMessageArea().getChildren().add(message);
             chatGuiClient.getScrollPane().applyCss();
@@ -57,14 +73,14 @@ public class ChatGuiSocketListener implements Runnable {
                 chatGuiClient.getTextInput().setEditable(true);
                 chatGuiClient.getSendButton().setDisable(false);
                 // chatGuiClient.getMessageArea().appendText("Welcome to the chat, " + username + "\n");
-                addMessage("Welcome to the chat, " + username + "\n");
+                addMessage("Welcome to the chat, " + username + "\n", new Image(getClass().getResourceAsStream("pictures/Gato2.png")));
             });
         }
 
         else {
             Platform.runLater(() -> {
                 // chatGuiClient.getMessageArea().appendText(m.userName + " joined the chat!\n");
-                addMessage(m.userName + " joined the chat!\n");
+                addMessage(m.userName + " joined the chat!\n", new Image(getClass().getResourceAsStream("pictures/Gato2.png")));
 
                 chatGuiClient.getNames().add(m.userName);
                 chatGuiClient.sendMessage(new MessageCtoS_UpdateList(m.userName));
@@ -75,15 +91,11 @@ public class ChatGuiSocketListener implements Runnable {
     private void processChatMessage(MessageStoC_Chat m) {
         Platform.runLater(() -> {
             // chatGuiClient.getMessageArea().appendText(m.userName + ": " + m.msg + "\n");
-            HBox message = new HBox();
-            TextArea text = new TextArea(m.userName + ": " + m.msg + "\n");
-            text.setEditable(false);
-            text.setWrapText(true);
-            message.getChildren().addAll(new ImageView(), text);
-            chatGuiClient.getMessageArea().getChildren().add(message);
-            chatGuiClient.getScrollPane().applyCss();
-            chatGuiClient.getScrollPane().layout();
-            chatGuiClient.getScrollPane().setVvalue(1);
+
+            byte[] img = Base64.getDecoder().decode(m.img);
+            BufferedImage pfp = ImageIO.read(new ByteArrayInputStream(img));
+            Image pfpin = SwingFXUtils.toFXImage(pfp, null);
+            addMessage(m.userName + ": " + m.msg + "\n", pfpin);
         });
     }
 
@@ -107,7 +119,7 @@ public class ChatGuiSocketListener implements Runnable {
     private void processExitMessage(MessageStoC_Exit m) {
         Platform.runLater(() -> {
             // chatGuiClient.getMessageArea().appendText(m.userName + " has left the chat!\n");
-            addMessage(m.userName + " has left the chat!\n");
+            addMessage(m.userName + " has left the chat!\n", new Image(getClass().getResourceAsStream("pictures/Gato2.png")));
         });
     }
 

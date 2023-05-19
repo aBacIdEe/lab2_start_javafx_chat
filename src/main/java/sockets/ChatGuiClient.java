@@ -1,12 +1,13 @@
 package sockets;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.HashMap;
+import java.nio.file.Files;
+import java.util.Base64;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import javafx.application.Application;
@@ -103,6 +104,9 @@ public class ChatGuiClient extends Application {
         borderPane.setBottom(hbox);
 
         Scene scene = new Scene(borderPane, 400, 500);
+        String css = this.getClass().getResource("text-area-background.css").toExternalForm(); 
+        scene.getStylesheets().add(css);
+
         stage.setTitle("Chat Client");
         stage.setScene(scene);
         stage.show();
@@ -141,12 +145,20 @@ public class ChatGuiClient extends Application {
     }
 
     private void sendChatMessage() {
-        String msg = textInput.getText().trim();
-        if (msg.length() == 0) {
-            return;
+        try {
+            String msg = textInput.getText().trim();
+            if (msg.length() == 0) {
+                return;
+            }
+            textInput.clear();
+            File fi = new File("/pictures/pfp.png");
+            byte[] imageBytes = Files.readAllBytes(fi.toPath());
+            String pfp = Base64.getEncoder().encodeToString(imageBytes);
+            sendMessage(new MessageCtoS_Chat(msg, pfp));
+        } 
+        catch (Exception ex) {
+            System.out.println(ex);
         }
-        textInput.clear();
-        sendMessage(new MessageCtoS_Chat(msg));
     }
 
     public ObjectOutputStream getSocketOut() {

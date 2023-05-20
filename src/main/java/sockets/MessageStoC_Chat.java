@@ -3,12 +3,12 @@ package sockets;
 public class MessageStoC_Chat extends Message {
     public String userName;
     public String msg;
-    public String img;
+    public byte[] pfp;
 
-    public MessageStoC_Chat(String userName, String msg, String img) {
+    public MessageStoC_Chat(String userName, String msg, byte[] pfp) {
         this.userName = userName;
         this.msg = msg;
-        this.img = img;
+        this.pfp = pfp;
     }
 
     public String toString() {

@@ -1,12 +1,10 @@
 package sockets;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.nio.file.Files;
-import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,7 +30,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class ChatGuiClient extends Application {
@@ -45,7 +42,7 @@ public class ChatGuiClient extends Application {
 
     private Stage stage;
     private ScrollPane scrollpane;
-    private VBox messageArea;
+    private ListView<HBox> messageArea;
     private TextField textInput;
     private Button sendButton;
 
@@ -74,12 +71,9 @@ public class ChatGuiClient extends Application {
 
         this.stage = primaryStage;
         BorderPane borderPane = new BorderPane();
-        messageArea = new VBox();
-        // messageArea.setWrapText(true);
-        // messageArea.setEditable(false);
-        scrollpane = new ScrollPane();
-        scrollpane.setContent(messageArea);
-        borderPane.setCenter(scrollpane);
+        messageArea = new ListView<>();
+        messageArea.setPrefSize(200, 250);
+        borderPane.setCenter(messageArea);
 
         // active user list
         final ListView<String> listView = new ListView<>();
@@ -89,6 +83,8 @@ public class ChatGuiClient extends Application {
         names.add("Everyone");
         listView.setCellFactory(param -> new RadioListCell());
         borderPane.setLeft(listView);
+
+        listView.setId("names");
 
         // At first, can't send messages - wait for WELCOME!
         textInput = new TextField();
@@ -104,8 +100,8 @@ public class ChatGuiClient extends Application {
         borderPane.setBottom(hbox);
 
         Scene scene = new Scene(borderPane, 400, 500);
-        String css = this.getClass().getResource("text-area-background.css").toExternalForm(); 
-        scene.getStylesheets().add(css);
+        // String css = this.getClass().getResource("style.css").toExternalForm();
+        // scene.getStylesheets().add(css);
 
         stage.setTitle("Chat Client");
         stage.setScene(scene);
@@ -150,11 +146,16 @@ public class ChatGuiClient extends Application {
             if (msg.length() == 0) {
                 return;
             }
+            // Image img = new Image(getClass().getResourceAsStream("pictures/pfp.png"));
+            // int w = (int)img.getWidth();
+            // int h = (int)img.getHeight();
+            // byte[] buf = new byte[w * h * 4];
+            // img.getPixelReader().getPixels(0, 0, w, h, PixelFormat.getByteBgraInstance(), buf, 0, w * 4);
+            
+            InputStream is = getClass().getResourceAsStream("pictures/pfp.png");
+            byte[] bytes = is.readAllBytes();
+            sendMessage(new MessageCtoS_Chat(msg, bytes));
             textInput.clear();
-            File fi = new File("/pictures/pfp.png");
-            byte[] imageBytes = Files.readAllBytes(fi.toPath());
-            String pfp = Base64.getEncoder().encodeToString(imageBytes);
-            sendMessage(new MessageCtoS_Chat(msg, pfp));
         } 
         catch (Exception ex) {
             System.out.println(ex);
@@ -173,7 +174,7 @@ public class ChatGuiClient extends Application {
         return stage;
     }
 
-    public VBox getMessageArea() {
+    public ListView<HBox> getMessageArea() {
         return messageArea;
     }
 

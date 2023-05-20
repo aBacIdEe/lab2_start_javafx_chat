@@ -52,7 +52,7 @@ public class ChatGuiSocketListener implements Runnable {
 
     private void processDirectMessage(MessageStoC_DM m) {
         Platform.runLater(() -> {
-            chatGuiClient.getMessageArea().appendText(m.sender + " (DM):" + m.msg + "\n");
+            chatGuiClient.getMessageArea().appendText(m.sender + " (DM): " + m.msg + "\n");
         });
     }
 

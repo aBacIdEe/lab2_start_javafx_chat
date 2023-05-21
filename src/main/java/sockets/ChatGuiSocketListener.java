@@ -99,7 +99,8 @@ public class ChatGuiSocketListener implements Runnable {
 
     private void processDirectMessage(MessageStoC_DM m) {
         Platform.runLater(() -> {
-            chatGuiClient.getMessageArea().appendText(m.sender + " (DM): " + m.msg + "\n");
+            ByteArrayInputStream pfpin = new ByteArrayInputStream(m.pfp);
+            addMessage(m.msg + "\n", new Image(pfpin), m.sender + " (DM) ");
         });
     }
 

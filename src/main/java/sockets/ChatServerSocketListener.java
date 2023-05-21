@@ -24,7 +24,7 @@ public class ChatServerSocketListener  implements Runnable {
     }
 
     private void processDM(MessageCtoS_DM m) {
-        directMessage(new MessageStoC_DM(client.getUserName(), m.msg), m.target);
+        directMessage(new MessageStoC_DM(client.getUserName(), m.msg, m.pfp), m.target, client.getUserName());
     }
 
     /**
@@ -46,10 +46,10 @@ public class ChatServerSocketListener  implements Runnable {
         }        
     }
 
-    public void directMessage(Message m, String target) {
+    public void directMessage(Message m, String target, String target2) {
         try {
             for (ClientConnectionData c: clientList) {
-                if ((c.getUserName().equals(target)) && c.getUserName() != null) {
+                if (((c.getUserName().equals(target)) || c.getUserName().equals(target2)) && c.getUserName() != null) {
                     c.getOut().writeObject(m);
                 }
             }

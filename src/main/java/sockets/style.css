@@ -1,0 +1,21 @@
+.list-view .list-cell:odd {
+    -fx-background-color: #33363E;
+    -fx-text-fill: white;
+}
+
+.list-view .list-cell:even {
+    -fx-background-color: #33363E;
+    -fx-text-fill: white;
+}
+
+.list-view {
+    -fx-background-color: #33363E;
+}
+
+#names {
+    -fx-background-color: #2f3136;
+}
+
+.radio-button {
+    -fx-text-fill: white;
+}

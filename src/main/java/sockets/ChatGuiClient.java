@@ -1,6 +1,7 @@
 package sockets;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -22,7 +23,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
@@ -40,7 +41,8 @@ public class ChatGuiClient extends Application {
     private ToggleGroup group = new ToggleGroup();
 
     private Stage stage;
-    private TextArea messageArea;
+    private ScrollPane scrollpane;
+    private ListView<HBox> messageArea;
     private TextField textInput;
     private Button sendButton;
 
@@ -69,10 +71,8 @@ public class ChatGuiClient extends Application {
 
         this.stage = primaryStage;
         BorderPane borderPane = new BorderPane();
-
-        messageArea = new TextArea();
-        messageArea.setWrapText(true);
-        messageArea.setEditable(false);
+        messageArea = new ListView<>();
+        messageArea.setPrefSize(200, 250);
         borderPane.setCenter(messageArea);
 
         // active user list
@@ -83,6 +83,8 @@ public class ChatGuiClient extends Application {
         names.add("Everyone");
         listView.setCellFactory(param -> new RadioListCell());
         borderPane.setLeft(listView);
+
+        listView.setId("names");
 
         // At first, can't send messages - wait for WELCOME!
         textInput = new TextField();
@@ -98,6 +100,9 @@ public class ChatGuiClient extends Application {
         borderPane.setBottom(hbox);
 
         Scene scene = new Scene(borderPane, 400, 500);
+        // String css = this.getClass().getResource("style.css").toExternalForm();
+        // scene.getStylesheets().add(css);
+
         stage.setTitle("Chat Client");
         stage.setScene(scene);
         stage.show();
@@ -136,21 +141,34 @@ public class ChatGuiClient extends Application {
     }
 
     private void sendChatMessage() {
-        String msg = textInput.getText().trim();
-        if (msg.length() == 0) {
-            return;
-        }
-        textInput.clear();
-        if (((RadioButton) group.getSelectedToggle()) == null) {
-            sendMessage(new MessageCtoS_Chat(msg));
-        }
-        else if (((RadioButton) group.getSelectedToggle()).getText().equals("Everyone")) {
-            sendMessage(new MessageCtoS_Chat(msg));
-        }
-        else {
-            sendMessage(new MessageCtoS_DM(((RadioButton) group.getSelectedToggle()).getText(), msg));
-        }
+        try {
+            String msg = textInput.getText().trim();
+            if (msg.length() == 0) {
+                return;
+            }
+            // Image img = new Image(getClass().getResourceAsStream("pictures/pfp.png"));
+            // int w = (int)img.getWidth();
+            // int h = (int)img.getHeight();
+            // byte[] buf = new byte[w * h * 4];
+            // img.getPixelReader().getPixels(0, 0, w, h, PixelFormat.getByteBgraInstance(), buf, 0, w * 4);
+            
+            InputStream is = getClass().getResourceAsStream("pictures/pfp.png");
+            byte[] bytes = is.readAllBytes();
+            textInput.clear();
         
+            if (((RadioButton) group.getSelectedToggle()) == null) {
+                sendMessage(new MessageCtoS_Chat(msg,bytes));
+            }
+            else if (((RadioButton) group.getSelectedToggle()).getText().equals("Everyone")) {
+                sendMessage(new MessageCtoS_Chat(msg,bytes));
+            }
+            else {
+                sendMessage(new MessageCtoS_DM(((RadioButton) group.getSelectedToggle()).getText(), msg, bytes));
+            }
+        } 
+        catch (Exception ex) {
+            System.out.println(ex);
+        }
     }
 
     public ObjectOutputStream getSocketOut() {
@@ -165,8 +183,12 @@ public class ChatGuiClient extends Application {
         return stage;
     }
 
-    public TextArea getMessageArea() {
+    public ListView<HBox> getMessageArea() {
         return messageArea;
+    }
+
+    public ScrollPane getScrollPane() {
+        return scrollpane;
     }
 
     public TextField getTextInput() {

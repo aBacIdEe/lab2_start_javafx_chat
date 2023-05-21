@@ -1,10 +1,21 @@
 package sockets;
 
+import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
 import java.util.Optional;
 
 import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
+
 
 public class ChatGuiSocketListener implements Runnable {
 
@@ -23,6 +34,37 @@ public class ChatGuiSocketListener implements Runnable {
         this.chatGuiClient = chatClient;
     }
 
+    private void addMessage(String msg, Image pfpin, String nameout) {
+        try {
+            HBox message = new HBox(); // the message
+            message.setSpacing(10);
+            message.setPadding(new Insets(5, 5, 15, 10));
+            VBox person = new VBox(); // the profile on top of the text inside the message
+
+            TextFlow name = new TextFlow();
+            Text n = new Text(nameout);
+            name.setStyle("-fx-text-fill: white");
+            n.setFont(Font.font("Helvetica"));
+            name.getChildren().add(n);
+
+            TextFlow content = new TextFlow();
+            content.getChildren().add(new Text(msg));
+
+            ImageView pfp = new ImageView(pfpin);
+            pfp.setFitHeight(36);
+            pfp.setFitWidth(36);
+
+            HBox.setHgrow(content, Priority.ALWAYS);
+            person.getChildren().addAll(name, content);
+            message.getChildren().addAll(pfp, person);
+            chatGuiClient.getMessageArea().getItems().add(message);
+            chatGuiClient.getMessageArea().scrollTo(chatGuiClient.getMessageArea().getItems().size() - 1);
+        }
+        catch (Exception ex) {
+            System.out.println(ex);
+        }
+    }
+
     private void processWelcomeMessage(MessageStoC_Welcome m) {
         String user = m.userName;
 
@@ -31,13 +73,16 @@ public class ChatGuiSocketListener implements Runnable {
                 chatGuiClient.getStage().setTitle("Chatter - " + username);
                 chatGuiClient.getTextInput().setEditable(true);
                 chatGuiClient.getSendButton().setDisable(false);
-                chatGuiClient.getMessageArea().appendText("Welcome to the chat, " + username + "\n");
+                // chatGuiClient.getMessageArea().appendText("Welcome to the chat, " + username + "\n");
+                addMessage("Welcome to the chat, " + username + "\n", new Image(getClass().getResourceAsStream("pictures/Gato2.png")), "system");
             });
         }
 
         else {
             Platform.runLater(() -> {
-                chatGuiClient.getMessageArea().appendText(m.userName + " joined the chat!\n");
+                // chatGuiClient.getMessageArea().appendText(m.userName + " joined the chat!\n");
+                addMessage(m.userName + " joined the chat!\n", new Image(getClass().getResourceAsStream("pictures/Gato2.png")), "system");
+
                 chatGuiClient.getNames().add(m.userName);
                 chatGuiClient.sendMessage(new MessageCtoS_UpdateList(m.userName));
             });
@@ -46,7 +91,9 @@ public class ChatGuiSocketListener implements Runnable {
 
     private void processChatMessage(MessageStoC_Chat m) {
         Platform.runLater(() -> {
-            chatGuiClient.getMessageArea().appendText(m.userName + ": " + m.msg + "\n");
+            // chatGuiClient.getMessageArea().appendText(m.userName + ": " + m.msg + "\n");
+            ByteArrayInputStream pfpin = new ByteArrayInputStream(m.pfp);
+            addMessage(m.msg + "\n", new Image(pfpin), m.userName);
         });
     }
 
@@ -80,7 +127,8 @@ public class ChatGuiSocketListener implements Runnable {
 
     private void processExitMessage(MessageStoC_Exit m) {
         Platform.runLater(() -> {
-            chatGuiClient.getMessageArea().appendText(m.userName + " has left the chat!\n");
+            // chatGuiClient.getMessageArea().appendText(m.userName + " has left the chat!\n");
+            addMessage(m.userName + " has left the chat!\n", new Image(getClass().getResourceAsStream("pictures/Gato2.png")), m.userName);
         });
     }
 
